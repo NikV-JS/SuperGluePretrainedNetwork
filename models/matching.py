@@ -53,7 +53,7 @@ class Matching(torch.nn.Module):
         self.superpoint = SuperPoint(config.get('superpoint', {}))
         self.superglue = SuperGlue(config.get('superglue', {}))
 
-    def forward(self, data):
+    def forward(self, data, q_cc_mask, db_cc_mask, topk):
         """ Run SuperPoint (optionally) and SuperGlue
         SuperPoint is skipped if ['keypoints0', 'keypoints1'] exist in input
         Args:
@@ -64,9 +64,23 @@ class Matching(torch.nn.Module):
         # Extract SuperPoint (keypoints, scores, descriptors) if not provided
         if 'keypoints0' not in data:
             pred0 = self.superpoint({'image': data['image0']})
+            q_keypoints = pred0['keypoints'][0].detach().cpu().numpy()
+            q_map = q_cc_mask[q_keypoints.astype('int')[:,0].T,q_keypoints.astype('int')[:,1].T]
+            q_filter = np.in1d(q_map, topk)            
+            q_filter_ind = np.where(q_filter == 1)[0]
+            pred0['keypoints'] = [pred0['keypoints'][0][q_filter_ind,:]]
+            pred0['scores'] = (pred0['scores'][0][q_filter_ind],)
+            pred0['descriptors'] = [pred0['descriptors'][0][:, q_filter_ind]]
             pred = {**pred, **{k+'0': v for k, v in pred0.items()}}
         if 'keypoints1' not in data:
             pred1 = self.superpoint({'image': data['image1']})
+            db_keypoints = pred1['keypoints'][0].detach().cpu().numpy()
+            db_map = db_cc_mask[db_keypoints.astype('int')[:,0].T,db_keypoints.astype('int')[:,1].T]
+            db_filter = np.in1d(db_map, topk)
+            db_filter_ind = np.where(db_filter == 1)[0]
+            pred1['keypoints'] = [pred1['keypoints'][0][db_filter_ind,:]]
+            pred1['scores'] = (pred1['scores'][0][db_filter_ind],)
+            pred1['descriptors'] = [pred1['descriptors'][0][:, db_filter_ind]]
             pred = {**pred, **{k+'1': v for k, v in pred1.items()}}
 
         # Batch all features
