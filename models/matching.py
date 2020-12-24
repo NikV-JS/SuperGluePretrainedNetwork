@@ -41,6 +41,7 @@
 # %BANNER_END%
 
 import torch
+import numpy as np
 
 from .superpoint import SuperPoint
 from .superglue import SuperGlue
