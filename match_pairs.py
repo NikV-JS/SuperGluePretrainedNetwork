@@ -140,6 +140,22 @@ if __name__ == '__main__':
         '--force_cpu', action='store_true',
         help='Force pytorch to run in CPU mode.')
 
+    parser.add_argument(
+        '--k', type=float, default=16,
+        help='Number of Top Imp Clusters')
+    parser.add_argument(
+        '--db_cc_path', type=str, default='',
+        help='Path to db cluster masks')
+    parser.add_argument(
+        '--q_cc_path', type=str, default='',
+        help='Path to query cluster masks')
+    parser.add_argument(
+        '--netvlad_cand', type=str, default='',
+        help='Path to netvlad predictions')
+    parser.add_argument(
+        '--stat_weights', type=str, default='',
+        help='Path to statistical weights')
+    
     opt = parser.parse_args()
     print(opt)
 
@@ -204,6 +220,15 @@ if __name__ == '__main__':
     if opt.viz:
         print('Will write visualization images to',
               'directory \"{}\"'.format(output_dir))
+        
+    # Loading cluster masks & netvlad candidates
+    db_cc_masks = np.load(opt.db_cc_path)
+    q_cc_masks = np.load(opt.q_cc_path)
+    netvlad_candidates = np.load(opt.netvlad_cand)
+    netvlad_candidates = netvlad_candidates.flatten()
+    stat_weights = np.load(opt.stat_weights)
+    cluster_importance = np.argsort(stat_weights, axis=1)
+    importance = np.flip(cluster_importance, axis=1)
 
     timer = AverageTimer(newline=True)
     for i, pair in enumerate(pairs):
@@ -268,10 +293,16 @@ if __name__ == '__main__':
                 input_dir/name0, input_dir/name1))
             exit(1)
         timer.update('load_image')
+        
+        # Getting Top k Imp Clusters and seg maps for Db and Query
+        query_indx = i/20
+        q_cc_mask = q_cc_masks[query_indx]
+        db_cc_mask = db_cc_masks[netvlad_candidates[i].astype('int')]
+        topk = importance[netvlad_candidates[i].astype('int'),:(opt.k)] # K Top Important Clusters       
 
         if do_match:
             # Perform the matching.
-            pred = matching({'image0': inp0, 'image1': inp1})
+            pred = matching({'image0': inp0, 'image1': inp1}, q_cc_mask, db_cc_mask, topk)
             pred = {k: v[0].cpu().numpy() for k, v in pred.items()}
             kpts0, kpts1 = pred['keypoints0'], pred['keypoints1']
             matches, conf = pred['matches0'], pred['matching_scores0']
