@@ -64,7 +64,7 @@ class Matching(torch.nn.Module):
         # Extract SuperPoint (keypoints, scores, descriptors) if not provided
         if 'keypoints0' not in data:
             pred0 = self.superpoint({'image': data['image0']})
-            q_keypoints = pred0['keypoints'][0].detach().cpu().numpy()
+            q_keypoints = np.flip(pred0['keypoints'][0].detach().cpu().numpy(), axis=1)
             q_map = q_cc_mask[q_keypoints.astype('int')[:,0].T,q_keypoints.astype('int')[:,1].T]
             q_filter = np.in1d(q_map, topk)            
             q_filter_ind = np.where(q_filter == 1)[0]
@@ -74,7 +74,7 @@ class Matching(torch.nn.Module):
             pred = {**pred, **{k+'0': v for k, v in pred0.items()}}
         if 'keypoints1' not in data:
             pred1 = self.superpoint({'image': data['image1']})
-            db_keypoints = pred1['keypoints'][0].detach().cpu().numpy()
+            db_keypoints = np.flip(pred1['keypoints'][0].detach().cpu().numpy(), axis=1)
             db_map = db_cc_mask[db_keypoints.astype('int')[:,0].T,db_keypoints.astype('int')[:,1].T]
             db_filter = np.in1d(db_map, topk)
             db_filter_ind = np.where(db_filter == 1)[0]
