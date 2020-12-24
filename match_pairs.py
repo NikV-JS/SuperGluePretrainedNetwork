@@ -296,7 +296,7 @@ if __name__ == '__main__':
         
         # Getting Top k Imp Clusters and seg maps for Db and Query
         query_indx = i/20
-        q_cc_mask = q_cc_masks[query_indx]
+        q_cc_mask = q_cc_masks[query_indx.astype('int')]
         db_cc_mask = db_cc_masks[netvlad_candidates[i].astype('int')]
         topk = importance[netvlad_candidates[i].astype('int'),:(opt.k)] # K Top Important Clusters       
 
