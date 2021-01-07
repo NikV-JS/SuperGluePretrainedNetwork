@@ -233,4 +233,6 @@ if __name__ == '__main__':
                            'scores': scores}
             lst.append(out_desc)
             
+        timer.print('Finished image {:5} of {:5}'.format(i, len(pairs)))
+            
     np.savez(file_dir,lst) 
