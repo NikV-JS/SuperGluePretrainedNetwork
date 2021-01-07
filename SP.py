@@ -214,8 +214,8 @@ if __name__ == '__main__':
         image0, inp0, scales0 = read_image(
             input_dir / name0, device, opt.resize, rot0, opt.resize_float)
         if image0 is None:
-            print('Problem reading image pair: {} {}'.format(
-                input_dir/name0, input_dir/name1))
+            print('Problem reading image pair: {}'.format(
+                input_dir/name0))
             exit(1)
         timer.update('load_image')       
 
