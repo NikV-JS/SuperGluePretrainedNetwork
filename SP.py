@@ -149,7 +149,7 @@ if __name__ == '__main__':
         raise ValueError('Cannot specify more than two integers for --resize')
 
     with open(opt.input_pairs, 'r') as f:
-        pairs = [l.split() for l in f.readlines()]
+        pairs = f.read().splitlines()
 
     if opt.max_length > -1:
         pairs = pairs[0:np.min([len(pairs), opt.max_length])]
@@ -193,8 +193,8 @@ if __name__ == '__main__':
     file_dir = ''
     lst = []
     
-    for i, pair in enumerate(pairs):
-        name0 = pair[:1]
+    for i in range(len(pairs)):
+        name0 = pairs[i]
         stem0 = Path(name0).stem
 
         # Handle --cache logic.
