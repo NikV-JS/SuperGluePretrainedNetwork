@@ -65,13 +65,13 @@ class Matching(torch.nn.Module):
         # Extract SuperPoint (keypoints, scores, descriptors) if not provided
         if 'keypoints0' not in data:
             pred0 = self.superpoint({'image': data['image0']})
-            q_keypoints = np.flip(pred0['keypoints'][0].detach().cpu().numpy(), axis=1)
-            q_map = q_cc_mask[q_keypoints.astype('int')[:,0].T,q_keypoints.astype('int')[:,1].T]
-            q_filter = np.in1d(q_map, topk)            
-            q_filter_ind = np.where(q_filter == 1)[0]
-            pred0['keypoints'] = [pred0['keypoints'][0][q_filter_ind,:]]
-            pred0['scores'] = (pred0['scores'][0][q_filter_ind],)
-            pred0['descriptors'] = [pred0['descriptors'][0][:, q_filter_ind]]
+#             q_keypoints = np.flip(pred0['keypoints'][0].detach().cpu().numpy(), axis=1)
+#             q_map = q_cc_mask[q_keypoints.astype('int')[:,0].T,q_keypoints.astype('int')[:,1].T]
+#             q_filter = np.in1d(q_map, topk)            
+#             q_filter_ind = np.where(q_filter == 1)[0]
+#             pred0['keypoints'] = [pred0['keypoints'][0][q_filter_ind,:]]
+#             pred0['scores'] = (pred0['scores'][0][q_filter_ind],)
+#             pred0['descriptors'] = [pred0['descriptors'][0][:, q_filter_ind]]
             pred = {**pred, **{k+'0': v for k, v in pred0.items()}}
         if 'keypoints1' not in data:
             pred1 = self.superpoint({'image': data['image1']})
