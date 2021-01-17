@@ -223,13 +223,16 @@ if __name__ == '__main__':
         
     # Loading cluster masks & netvlad candidates
     db_cc_masks = np.load(opt.db_cc_path)
-    q_cc_masks = np.load(opt.q_cc_path)
+    #q_cc_masks = np.load(opt.q_cc_path)
     netvlad_candidates = np.load(opt.netvlad_cand)
     netvlad_candidates = netvlad_candidates.flatten()
     stat_weights = np.load(opt.stat_weights)
     cluster_importance = np.argsort(stat_weights, axis=1)
     importance = np.flip(cluster_importance, axis=1)
 
+    par_dir = ''
+    SG_mat = []
+    
     timer = AverageTimer(newline=True)
     for i, pair in enumerate(pairs):
         name0, name1 = pair[:2]
@@ -296,9 +299,9 @@ if __name__ == '__main__':
         
         # Getting Top k Imp Clusters and seg maps for Db and Query
         query_indx = i/20
-        q_cc_mask = q_cc_masks[int(query_indx)]
+        #q_cc_mask = q_cc_masks[int(query_indx)]
         db_cc_mask = db_cc_masks[netvlad_candidates[i].astype('int')]
-        topk = importance[i,:(opt.k)] # K Top Important Clusters       
+        topk = importance[netvlad_candidates[i].astype('int'),:(opt.k)] # K Top Important Clusters       
 
         if do_match:
             # Perform the matching.
@@ -311,7 +314,8 @@ if __name__ == '__main__':
             # Write the matches to disk.
             out_matches = {'keypoints0': kpts0, 'keypoints1': kpts1,
                            'matches': matches, 'match_confidence': conf}
-            np.savez(str(matches_path), **out_matches)
+            SG_mat.append(out_matches)
+            #np.savez(str(matches_path), **out_matches)
 
         # Keep the matching keypoints.
         valid = matches > -1
@@ -430,6 +434,7 @@ if __name__ == '__main__':
 
         timer.print('Finished pair {:5} of {:5}'.format(i, len(pairs)))
 
+    np.savez(par_dir+str(opt.k)+'.npz',SG_mat)
     if opt.eval:
         # Collate the results into a final table and print to terminal.
         pose_errors = []
