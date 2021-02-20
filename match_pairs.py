@@ -310,7 +310,7 @@ if __name__ == '__main__':
 
         if do_match:
             # Perform the matching.
-            pred = matching({'image0': inp0, 'image1': inp1}, q_cc_mask, db_cc_mask, topk)
+            pred = matching({'image0': inp0, 'image1': inp1}, db_cc_mask, topk)
             pred = {k: v[0].cpu().numpy() for k, v in pred.items()}
             kpts0, kpts1 = pred['keypoints0'], pred['keypoints1']
             matches, conf = pred['matches0'], pred['matching_scores0']
