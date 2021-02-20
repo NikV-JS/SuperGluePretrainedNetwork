@@ -229,6 +229,11 @@ if __name__ == '__main__':
     stat_weights = np.load(opt.stat_weights)
     cluster_importance = np.argsort(stat_weights, axis=1)
     importance = np.flip(cluster_importance, axis=1)
+    
+    dustbin_clusters = np.array([ 0,  1, 10, 12])
+    idx = np.in1d(importance, dustbin_clusters)
+    idx = ~idx
+    importance = importance.flatten()[idx].reshape((314,12))
 
     par_dir = ''
     SG_mat = []
