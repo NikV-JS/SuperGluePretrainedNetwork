@@ -54,7 +54,7 @@ class Matching(torch.nn.Module):
         self.superpoint = SuperPoint(config.get('superpoint', {}))
         self.superglue = SuperGlue(config.get('superglue', {}))
 
-    def forward(self, data, q_cc_mask, db_cc_mask, topk):
+    def forward(self, data, db_cc_mask, topk):
         """ Run SuperPoint (optionally) and SuperGlue
         SuperPoint is skipped if ['keypoints0', 'keypoints1'] exist in input
         Args:
