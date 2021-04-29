@@ -230,10 +230,12 @@ if __name__ == '__main__':
     cluster_importance = np.argsort(stat_weights, axis=1)
     importance = np.flip(cluster_importance, axis=1)
     
-    dustbin_clusters = np.array([ 0,  1, 10, 12])
+    #dustbin_clusters = np.array([ 0,  1, 10, 12]) #Berlin Low ES Utility
+    dustbin_clusters = np.array([ 5,  6, 10, 12]) #Oxford Low ES Utility
+    #dustbin_clusters = np.array([ 0,  3, 8, 9, 10, 13, 15]) #Nord Low ES Utility
     idx = np.in1d(importance, dustbin_clusters)
     idx = ~idx
-    importance = importance.flatten()[idx].reshape((314,12))
+    importance = importance.flatten()[idx].reshape((stat_weights.shape[0],12))
 
     par_dir = ''
     SG_mat = []
